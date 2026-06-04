@@ -4,7 +4,7 @@
 #define BOOT_PIN 0
 
 #define LED_PIN_0 16
-#define LED_PIN_1 17
+#define LED_PIN_1 15
 
 static int32_t _delay_0 = 256;
 static int32_t _delay_1 = 1024;
@@ -38,6 +38,6 @@ void loop() {
 
     digitalWrite(LED_PIN_0, _led_state);
     digitalWrite(LED_PIN_1, !_led_state);
-    
+
     delay(current_delay);
 } 
