@@ -24,12 +24,12 @@ static uint8_t _current_input_num;
 static char _input_buffer[CODE_LENGTH + 1];
 static bool _buffer_updated;
 
+const char _lock_code[CODE_LENGTH + 1] = "ABBA";
+
 static bool isButtonPressed(const uint8_t pin) {
     assert(pin == BUTTON_PIN_A || pin == BUTTON_PIN_B);
     return pin == BUTTON_PIN_A ? digitalRead(BUTTON_PIN_A) == LOW : digitalRead(BUTTON_PIN_B) == HIGH;
 }
-
-const char _lock_code[CODE_LENGTH + 1] = "ABBA";
 
 static void resetAll() {
     digitalWrite(LED_PIN_GREEN, LOW);
@@ -61,19 +61,16 @@ void setup() {
 }
 
 void loop() {
-    if (_current_lock_state == LockStateMachine::Input &&
-        _buffer_updated && 
-        (isButtonPressed(BUTTON_PIN_A) || isButtonPressed(BUTTON_PIN_B))) {
-        return;
-    }
-
-    _buffer_updated = false;
-
     switch (_current_lock_state) {
         case LockStateMachine::Input: {
-            const bool bBothButtonsPressed = isButtonPressed(BUTTON_PIN_A) && isButtonPressed(BUTTON_PIN_B);
-            const bool bAnyButtonPressed = isButtonPressed(BUTTON_PIN_A) || isButtonPressed(BUTTON_PIN_B);
-            if (bBothButtonsPressed || !bAnyButtonPressed) {
+            const bool bOneButtonPressed = isButtonPressed(BUTTON_PIN_A) ^ isButtonPressed(BUTTON_PIN_B);
+            const bool bAllButtonsUnpressed = !isButtonPressed(BUTTON_PIN_A) && !isButtonPressed(BUTTON_PIN_B);
+
+            if (bAllButtonsUnpressed) {
+                _buffer_updated = false;
+                break;
+            }
+            else if (!bOneButtonPressed || _buffer_updated) {
                 break;
             }
 
